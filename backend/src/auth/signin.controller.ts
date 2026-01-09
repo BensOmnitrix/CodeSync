@@ -36,7 +36,7 @@ export const signinController = async (req: Request, res: Response) => {
       { id: user.id, email: user.email, username: user.username },
       process.env.JWT_SECRET
     );
-    return res.json({ token });
+    return res.json({ token , user: { id: user.id, email: user.email, username: user.username } });
   } catch (err) {
     return res.status(500).json({ error: "Internal server error" });
   }

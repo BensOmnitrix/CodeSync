@@ -52,7 +52,7 @@ export const signupController = async (req: Request, res: Response) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-    return res.status(201).json({ token });
+    return res.status(201).json({ token , user: newUser });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }
