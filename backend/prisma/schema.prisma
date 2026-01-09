@@ -1,0 +1,128 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  username     String        @unique
+  passwordHash String        @map("password_hash")
+  createdAt    DateTime      @default(now()) @map("created_at")
+
+  repositories Repository[]
+  pullRequests PullRequest[] @relation("AuthorPullRequests")
+  comments     Comment[]
+  reviews      Review[]
+
+  @@map("users")
+}
+
+model Repository {
+  id        String        @id @default(uuid())
+  name      String
+  githubUrl String?       @map("github_url")
+  createdAt DateTime      @default(now()) @map("created_at")
+
+  ownerId   String
+  owner     User          @relation(fields: [ownerId], references: [id])
+
+  pullRequests PullRequest[]
+
+  @@map("repositories")
+}
+
+model PullRequest {
+  id           String            @id @default(uuid())
+  title        String
+  description  String?
+  status       PullRequestStatus @default(OPEN)
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  repositoryId String
+  repository   Repository       @relation(fields: [repositoryId], references: [id])
+
+  authorId     String
+  author       User             @relation("AuthorPullRequests", fields: [authorId], references: [id])
+
+  fileChanges  FileChange[]
+  comments     Comment[]
+  reviews      Review[]
+
+  @@map("pull_requests")
+}
+
+model FileChange {
+  id            String      @id @default(uuid())
+  filePath      String      @map("file_path")
+  diffContent   String      @map("diff_content")
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  pullRequestId String
+  pullRequest   PullRequest @relation(fields: [pullRequestId], references: [id])
+
+  comments      Comment[]
+
+  @@map("file_changes")
+}
+
+model Comment {
+  id              String      @id @default(uuid())
+  content         String
+  lineNumber      Int?        @map("line_number")
+  isResolved      Boolean     @default(false) @map("is_resolved")
+  createdAt       DateTime    @default(now()) @map("created_at")
+  updatedAt       DateTime    @updatedAt @map("updated_at")
+
+  pullRequestId   String
+  pullRequest     PullRequest @relation(fields: [pullRequestId], references: [id])
+
+  fileChangeId    String?
+  fileChange      FileChange? @relation(fields: [fileChangeId], references: [id])
+
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+
+  parentCommentId String?
+  parentComment   Comment?    @relation("CommentThread", fields: [parentCommentId], references: [id])
+  replies         Comment[]   @relation("CommentThread")
+
+  @@map("comments")
+}
+
+model Review {
+  id            String       @id @default(uuid())
+  status        ReviewStatus
+  createdAt     DateTime     @default(now()) @map("created_at")
+
+  pullRequestId String
+  pullRequest   PullRequest  @relation(fields: [pullRequestId], references: [id])
+
+  reviewerId    String
+  reviewer      User         @relation(fields: [reviewerId], references: [id])
+
+  @@map("reviews")
+}
+
+enum PullRequestStatus {
+  OPEN
+  APPROVED
+  CHANGES_REQUESTED
+  MERGED
+}
+
+enum ReviewStatus {
+  APPROVED
+  CHANGES_REQUESTED
+  COMMENTED
+}
