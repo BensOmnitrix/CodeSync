@@ -65,6 +65,10 @@ export const getToken = () => {
   return localStorage.getItem("token");
 }
 
+export const isAuthenticated = (): boolean => {
+  return Boolean(getToken());
+};
+
 export const logout = () => {
   localStorage.removeItem("token");
-}
+};
