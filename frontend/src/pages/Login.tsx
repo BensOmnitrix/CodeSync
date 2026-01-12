@@ -146,10 +146,7 @@ export default function LoginPage() {
                 setIsSubmitting(true);
 
                 try {
-                  await login(
-                    { email, password },
-                    rememberMe
-                  );
+                  await login({ email, password }, rememberMe);
 
                   navigate("/dashboard");
                 } catch (err: any) {
@@ -167,6 +164,11 @@ export default function LoginPage() {
                 </>
               ) : (
                 "Login"
+              )}
+              {formError && (
+                <p className="mt-3 text-center text-sm text-red-500">
+                  {formError}
+                </p>
               )}
             </button>
           </form>

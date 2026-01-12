@@ -5,7 +5,7 @@ import { Input } from "../components/input";
 import { useEffect, useState } from "react";
 import { usernameCheck } from "../services/username-check-service";
 import { register } from "../services/auth-service";
-import { replace, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function RegisterPage() {
   const navigate = useNavigate();
