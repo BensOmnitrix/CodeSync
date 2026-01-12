@@ -10,8 +10,8 @@ import {
   Workflow,
   Zap,
 } from "lucide-react";
-import { Feature } from "../components/Feature";
-import { Card } from "../components/Card";
+import { Feature } from "../components/feature";
+import { Card } from "../components/card";
 import { useNavigate } from "react-router-dom";
 
 export default function HomePage() {

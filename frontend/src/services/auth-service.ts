@@ -20,7 +20,7 @@ export interface AuthResponse {
   };
 }
 
-export const login = async (payload: LoginPayload) : Promise<AuthResponse | undefined>=> {
+export const login = async (payload: LoginPayload, rememberMe: boolean) : Promise<AuthResponse | undefined>=> {
   try {
     const response = await axios.post<AuthResponse>("http://localhost:8080/api/auth/login", {
       data: {
@@ -31,7 +31,8 @@ export const login = async (payload: LoginPayload) : Promise<AuthResponse | unde
     if(!response.data.token){
       throw new Error("No token received");
     }
-    setToken("Bearer " + response.data.token);
+    const storage: Storage = rememberMe ? localStorage : sessionStorage;
+    setToken(storage, "Bearer " + response.data.token);
     return response.data;
   } catch (err) {
     console.error("Login failed", err);
@@ -40,7 +41,7 @@ export const login = async (payload: LoginPayload) : Promise<AuthResponse | unde
 
 export const register = async (payload: RegisterPayload) : Promise<AuthResponse | undefined> => {
   try {
-    const response = await axios.post<AuthResponse>("http://localhost:8080/api/auth/register", {
+    const response = await axios.post("http://localhost:8080/api/auth/register", {
       data: {
         email: payload.email,
         username: payload.username,
@@ -50,25 +51,28 @@ export const register = async (payload: RegisterPayload) : Promise<AuthResponse 
     if(!response.data.token){
         throw new Error("No token received");
     }
-    setToken("Bearer " + response.data.token);
+    setToken(localStorage, "Bearer " + response.data.token);
     return response.data;
   } catch (err) {
-    console.error("Login failed", err);
+    throw err;
   }
 };
 
-export const setToken = (token: string) => {
-  localStorage.setItem("token", token);
+export const setToken = (storage: Storage,token: string) => {
+  storage.setItem("token", token);
 }
 
+export const logout = (storage: Storage) => {
+  storage.removeItem("token");
+};
+
 export const getToken = () => {
-  return localStorage.getItem("token");
-}
+  return (
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token")
+  );
+};
 
 export const isAuthenticated = (): boolean => {
   return Boolean(getToken());
-};
-
-export const logout = () => {
-  localStorage.removeItem("token");
 };
