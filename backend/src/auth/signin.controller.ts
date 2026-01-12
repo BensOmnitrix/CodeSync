@@ -12,8 +12,9 @@ export const signinController = async (req: Request, res: Response) => {
     if (!process.env.JWT_SECRET) {
       throw new Error("JWT_SECRET not configured");
     }
-    const userData: SigninType = req.body;
-    const parsedData = signinSchema.safeParse(userData);
+    const userData = req.body;
+    const parsedData = signinSchema.safeParse(userData.data);
+
     if (!parsedData.success) {
       return res.status(400).json({ error: "Invalid data" });
     }

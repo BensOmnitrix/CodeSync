@@ -1,4 +1,7 @@
-import { signupSchema, type SignupType } from "@100xbensomnitrix/codesynccommon";
+import {
+  signupSchema,
+  type SignupType,
+} from "@100xbensomnitrix/codesynccommon";
 import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcryptjs";
@@ -9,8 +12,9 @@ export const signupController = async (req: Request, res: Response) => {
     if (!process.env.JWT_SECRET) {
       throw new Error("JWT_SECRET not configured");
     }
-    const userData: SignupType = req.body;
-    const parsedData = signupSchema.safeParse(userData);
+    const userData = req.body;
+    const parsedData = signupSchema.safeParse(userData.data);
+    console.log(userData);
 
     if (!parsedData.success) {
       return res.status(400).json({ error: "Invalid data" });
@@ -20,20 +24,20 @@ export const signupController = async (req: Request, res: Response) => {
 
     const existing = await prisma.user.findFirst({
       where: {
-        OR: [{ email: validData.email.toLowerCase() }, { username: validData.username }],
+        email: validData.email.toLowerCase(),
       },
-      select: { email: true, username: true },
+      select: {
+        email: true,
+      },
     });
-
-    if (existing) {
-      if (existing.email === validData.email.toLowerCase()) {
-        return res.status(409).json({ error: "Email already exists" });
-      }
-      return res.status(409).json({ error: "Username already taken" });
+    
+    if (existing !== null) {
+      console.log("Hehe");
+      return res.status(409).json({ error: "Email already exists" });
     }
 
     const passwordHash = await bcrypt.hash(validData.password, 10);
-
+    
     const newUser = await prisma.user.create({
       data: {
         email: validData.email,
@@ -52,7 +56,7 @@ export const signupController = async (req: Request, res: Response) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-    return res.status(201).json({ token , user: newUser });
+    return res.status(201).json({ token, user: newUser });
   } catch (error) {
     return res.status(500).json({ error: "Internal server error" });
   }
