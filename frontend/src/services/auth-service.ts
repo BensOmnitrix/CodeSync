@@ -40,7 +40,6 @@ export const login = async (payload: LoginPayload, rememberMe: boolean) : Promis
 };
 
 export const register = async (payload: RegisterPayload) : Promise<AuthResponse | undefined> => {
-  try {
     const response = await axios.post("http://localhost:8080/api/auth/register", {
       data: {
         email: payload.email,
@@ -53,17 +52,15 @@ export const register = async (payload: RegisterPayload) : Promise<AuthResponse 
     }
     setToken(localStorage, "Bearer " + response.data.token);
     return response.data;
-  } catch (err) {
-    throw err;
-  }
 };
 
 export const setToken = (storage: Storage,token: string) => {
   storage.setItem("token", token);
 }
 
-export const logout = (storage: Storage) => {
-  storage.removeItem("token");
+export const logout = () => {
+  localStorage.removeItem("token");
+  sessionStorage.removeItem("token");
 };
 
 export const getToken = () => {

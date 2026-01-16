@@ -1,5 +1,5 @@
 import { type JSX } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { isAuthenticated } from "../services/auth-service";
 
 export const ProtectedRoute = ({
@@ -7,13 +7,9 @@ export const ProtectedRoute = ({
 }: {
   children: JSX.Element;
 }): JSX.Element => {
-  const navigate = useNavigate();
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
   }
-  else{
-    navigate("/dashboard", { replace: true });
-  }
-  return children;
 
+  return children;
 };

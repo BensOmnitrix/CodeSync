@@ -3,7 +3,7 @@ import {
   type SigninType,
 } from "@100xbensomnitrix/codesynccommon";
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma.js";
+import { prisma } from "../../lib/prisma.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
